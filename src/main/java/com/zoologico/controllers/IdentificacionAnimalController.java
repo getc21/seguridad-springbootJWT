@@ -1,13 +1,23 @@
 package com.zoologico.controllers;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.zoologico.dtos.ApiResponse;
 import com.zoologico.dtos.IdentificacionAnimalRequest;
 import com.zoologico.dtos.IdentificacionAnimalResponse;
 import com.zoologico.services.IdentificacionAnimalService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/identificaciones")
@@ -37,7 +47,7 @@ public class IdentificacionAnimalController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<IdentificacionAnimalResponse> update(
+    public ResponseEntity<ApiResponse> update(
             @PathVariable Long id,
             @RequestBody IdentificacionAnimalRequest request
     ) {
@@ -45,8 +55,9 @@ public class IdentificacionAnimalController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse> delete(@PathVariable Long id) {
         identificacionService.delete(id);
-        return ResponseEntity.noContent().build();
+        ApiResponse response = new ApiResponse(200, "Identificación eliminada correctamente");
+        return ResponseEntity.ok(response);
     }
 }

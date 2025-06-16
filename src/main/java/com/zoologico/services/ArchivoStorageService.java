@@ -1,17 +1,20 @@
 package com.zoologico.services;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.zoologico.dtos.ApiResponse;
 import com.zoologico.dtos.ArchivoMedicoRequest;
 import com.zoologico.dtos.ArchivoMedicoResponse;
 import com.zoologico.entities.Animal;
 import com.zoologico.entities.ArchivoMedico;
 import com.zoologico.repositories.AnimalRepository;
 import com.zoologico.repositories.ArchivoMedicoRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +44,24 @@ public class ArchivoStorageService {
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    public ArchivoMedicoResponse getById(Long id) {
+        return archivoMedicoRepository.findById(id)
+                .map(this::mapToResponse)
+                .orElseThrow(() -> new RuntimeException("Archivo médico no encontrado"));
+    }
+
+    public ApiResponse editar(Long id, ArchivoMedicoRequest request) {
+        ArchivoMedico archivo = archivoMedicoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Archivo médico no encontrado"));
+
+        archivo.setNombreArchivo(request.getNombreArchivo());
+        archivo.setUrlArchivo(request.getUrlArchivo());
+        archivo.setFechaSubida(LocalDateTime.now());
+
+        archivoMedicoRepository.save(archivo);
+        return new ApiResponse(200, "Archivo editado correctamente");
     }
 
     public void eliminar(Long id) {

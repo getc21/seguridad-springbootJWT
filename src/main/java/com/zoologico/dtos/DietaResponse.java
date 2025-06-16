@@ -15,4 +15,5 @@ public class DietaResponse {
     private LocalDate fechaFin;
     private String tipoAlimento;
     private Double cantidad;
+    private Long animalId;
 }

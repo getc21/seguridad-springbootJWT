@@ -1,8 +1,8 @@
 package com.zoologico.dtos;
 
-import lombok.Data;
-
 import java.time.LocalDate;
+
+import lombok.Data;
 
 @Data
 public class VacunaRequest {
@@ -11,4 +11,5 @@ public class VacunaRequest {
     private LocalDate fechaAplicacion;
     private String proveedor;
     private String dosis;
+    private Long animalId;
 }

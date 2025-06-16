@@ -1,16 +1,19 @@
 package com.zoologico.services;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.zoologico.dtos.ApiResponse;
 import com.zoologico.dtos.IdentificacionAnimalRequest;
 import com.zoologico.dtos.IdentificacionAnimalResponse;
 import com.zoologico.entities.Animal;
 import com.zoologico.entities.IdentificacionAnimal;
 import com.zoologico.repositories.AnimalRepository;
 import com.zoologico.repositories.IdentificacionAnimalRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +54,7 @@ public class IdentificacionAnimalService {
                 .collect(Collectors.toList());
     }
 
-    public IdentificacionAnimalResponse update(Long id, IdentificacionAnimalRequest request) {
+    public ApiResponse update(Long id, IdentificacionAnimalRequest request) {
         IdentificacionAnimal i = identificacionRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Identificación no encontrada"));
 
@@ -63,7 +66,9 @@ public class IdentificacionAnimalService {
         i.setDescripcion(request.getDescripcion());
         i.setAnimal(animal);
 
-        return toResponse(identificacionRepo.save(i));
+        identificacionRepo.save(i);
+
+        return new ApiResponse(200, "Identificación editada correctamente");
     }
 
     public void delete(Long id) {

@@ -1,13 +1,23 @@
 package com.zoologico.controllers;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.zoologico.dtos.ApiResponse;
 import com.zoologico.dtos.VacunaRequest;
 import com.zoologico.dtos.VacunaResponse;
 import com.zoologico.services.VacunaService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/vacunas")
@@ -31,14 +41,20 @@ public class VacunaController {
         return ResponseEntity.ok(vacunaService.getById(id));
     }
 
+    @GetMapping("/animal/{animalId}")
+    public ResponseEntity<List<VacunaResponse>> getByAnimal(@PathVariable Long animalId) {
+        return ResponseEntity.ok(vacunaService.getByAnimal(animalId));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<VacunaResponse> update(@PathVariable Long id, @RequestBody VacunaRequest request) {
+    public ResponseEntity<ApiResponse> update(@PathVariable Long id, @RequestBody VacunaRequest request) {
         return ResponseEntity.ok(vacunaService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse> delete(@PathVariable Long id) {
         vacunaService.delete(id);
-        return ResponseEntity.noContent().build();
+        ApiResponse response = new ApiResponse(200, "Vacuna eliminada correctamente");
+        return ResponseEntity.ok(response);
     }
 }

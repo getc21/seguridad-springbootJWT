@@ -1,13 +1,23 @@
 package com.zoologico.controllers;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.zoologico.dtos.ApiResponse;
 import com.zoologico.dtos.EstadoSaludRequest;
 import com.zoologico.dtos.EstadoSaludResponse;
 import com.zoologico.services.EstadoSaludService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/admin/estado-salud")
@@ -26,9 +36,18 @@ public class AdminEstadoSaludController {
         return ResponseEntity.ok(estadoSaludService.listarPorAnimal(animalId));
     }
 
+    @PutMapping("/{id}")
+public ResponseEntity<ApiResponse> editar(
+        @PathVariable Long id,
+        @RequestBody EstadoSaludRequest request) {
+    ApiResponse response = estadoSaludService.editar(id, request);
+    return ResponseEntity.ok(response);
+}
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse> eliminar(@PathVariable Long id) {
         estadoSaludService.eliminar(id);
-        return ResponseEntity.noContent().build();
+        ApiResponse response = new ApiResponse(200, "Estado de salud eliminado correctamente");
+        return ResponseEntity.ok(response);
     }
 }

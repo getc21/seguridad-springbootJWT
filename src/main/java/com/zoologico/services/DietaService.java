@@ -5,31 +5,37 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.zoologico.dtos.ApiResponse;
 import com.zoologico.dtos.DietaRequest;
 import com.zoologico.dtos.DietaResponse;
+import com.zoologico.entities.Animal;
 import com.zoologico.entities.Dieta;
+import com.zoologico.repositories.AnimalRepository;
 import com.zoologico.repositories.DietaRepository;
 
 import lombok.RequiredArgsConstructor;
-
 
 @Service
 @RequiredArgsConstructor
 public class DietaService {
 
     private final DietaRepository dietaRepository;
+    private final AnimalRepository animalRepository;
 
     public DietaResponse create(DietaRequest request) {
-        Dieta dieta = Dieta.builder()
-                .nombre(request.getNombre())
-                .descripcion(request.getDescripcion())
-                .fechaInicio(request.getFechaInicio())
-                .fechaFin(request.getFechaFin())
-                .tipoAlimento(request.getTipoAlimento())
-                .cantidad(request.getCantidad())
-                .build();
-        dieta = dietaRepository.save(dieta);
-        return toResponse(dieta);
+        Animal animal = animalRepository.findById(request.getAnimalId())
+                .orElseThrow(() -> new RuntimeException("Animal no encontrado"));
+
+        Dieta dieta = new Dieta();
+        dieta.setNombre(request.getNombre());
+        dieta.setDescripcion(request.getDescripcion());
+        dieta.setFechaInicio(request.getFechaInicio());
+        dieta.setFechaFin(request.getFechaFin());
+        dieta.setTipoAlimento(request.getTipoAlimento());
+        dieta.setCantidad(request.getCantidad());
+        dieta.setAnimal(animal);
+
+        return toResponse(dietaRepository.save(dieta));
     }
 
     public List<DietaResponse> getAll() {
@@ -45,7 +51,7 @@ public class DietaService {
                 .orElseThrow(() -> new RuntimeException("Dieta no encontrada"));
     }
 
-    public DietaResponse update(Long id, DietaRequest request) {
+    public ApiResponse update(Long id, DietaRequest request) {
         Dieta dieta = dietaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Dieta no encontrada"));
 
@@ -56,7 +62,9 @@ public class DietaService {
         dieta.setTipoAlimento(request.getTipoAlimento());
         dieta.setCantidad(request.getCantidad());
 
-        return toResponse(dietaRepository.save(dieta));
+        dietaRepository.save(dieta);
+
+        return new ApiResponse(200, "Dieta editada correctamente");
     }
 
     public void delete(Long id) {
@@ -75,6 +83,7 @@ public class DietaService {
                 .fechaFin(dieta.getFechaFin())
                 .tipoAlimento(dieta.getTipoAlimento())
                 .cantidad(dieta.getCantidad())
+                .animalId(dieta.getAnimal().getId()) // Asocia el ID del animal
                 .build();
     }
 }

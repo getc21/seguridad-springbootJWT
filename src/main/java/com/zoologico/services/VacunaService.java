@@ -1,23 +1,32 @@
 package com.zoologico.services;
 
-import com.zoologico.dtos.VacunaRequest;
-import com.zoologico.dtos.VacunaResponse;
-import com.zoologico.entities.Vacuna;
-import com.zoologico.repositories.VacunaRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.zoologico.dtos.ApiResponse;
+import com.zoologico.dtos.VacunaRequest;
+import com.zoologico.dtos.VacunaResponse;
+import com.zoologico.entities.Animal;
+import com.zoologico.entities.Vacuna;
+import com.zoologico.repositories.AnimalRepository;
+import com.zoologico.repositories.VacunaRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class VacunaService {
 
     private final VacunaRepository vacunaRepository;
+    private final AnimalRepository animalRepository;
 
     public VacunaResponse create(VacunaRequest request) {
+        Animal animal = animalRepository.findById(request.getAnimalId())
+                .orElseThrow(() -> new RuntimeException("Animal no encontrado"));
         Vacuna vacuna = Vacuna.builder()
+                .animal(animal)
                 .nombre(request.getNombre())
                 .descripcion(request.getDescripcion())
                 .fechaAplicacion(request.getFechaAplicacion())
@@ -42,7 +51,13 @@ public class VacunaService {
                 .orElseThrow(() -> new RuntimeException("Vacuna no encontrada"));
     }
 
-    public VacunaResponse update(Long id, VacunaRequest request) {
+    public List<VacunaResponse> getByAnimal(Long animalId) {
+    return vacunaRepository.findByAnimalId(animalId).stream()
+            .map(this::toResponse)
+            .collect(Collectors.toList());
+}
+
+    public ApiResponse update(Long id, VacunaRequest request) {
         Vacuna vacuna = vacunaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Vacuna no encontrada"));
 
@@ -52,7 +67,8 @@ public class VacunaService {
         vacuna.setProveedor(request.getProveedor());
         vacuna.setDosis(request.getDosis());
 
-        return toResponse(vacunaRepository.save(vacuna));
+        vacunaRepository.save(vacuna);
+        return new ApiResponse(200, "Vacuna actualizada correctamente");
     }
 
     public void delete(Long id) {
@@ -60,6 +76,7 @@ public class VacunaService {
             throw new RuntimeException("Vacuna no encontrada");
         }
         vacunaRepository.deleteById(id);
+
     }
 
     private VacunaResponse toResponse(Vacuna vacuna) {
@@ -70,6 +87,7 @@ public class VacunaService {
                 .fechaAplicacion(vacuna.getFechaAplicacion())
                 .proveedor(vacuna.getProveedor())
                 .dosis(vacuna.getDosis())
+                .animalId(vacuna.getAnimal().getId())
                 .build();
     }
 }

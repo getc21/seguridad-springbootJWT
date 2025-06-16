@@ -1,16 +1,19 @@
 package com.zoologico.services;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.zoologico.dtos.ApiResponse;
 import com.zoologico.dtos.HistorialRequest;
 import com.zoologico.dtos.HistorialResponse;
 import com.zoologico.entities.Animal;
 import com.zoologico.entities.HistorialVeterinario;
 import com.zoologico.repositories.AnimalRepository;
 import com.zoologico.repositories.HistorialVeterinarioRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +56,7 @@ public class HistorialService {
                 .collect(Collectors.toList());
     }
 
-    public HistorialResponse update(Long id, HistorialRequest request) {
+    public ApiResponse update(Long id, HistorialRequest request) {
         HistorialVeterinario historial = historialRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Historial no encontrado"));
 
@@ -67,7 +70,9 @@ public class HistorialService {
         historial.setObservaciones(request.getObservaciones());
         historial.setAnimal(animal);
 
-        return toResponse(historialRepo.save(historial));
+        historialRepo.save(historial);
+
+        return new ApiResponse(200, "Historial editado correctamente");
     }
 
     public void delete(Long id) {

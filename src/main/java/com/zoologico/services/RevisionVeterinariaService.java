@@ -1,16 +1,19 @@
 package com.zoologico.services;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.zoologico.dtos.ApiResponse;
 import com.zoologico.dtos.RevisionVeterinariaRequest;
 import com.zoologico.dtos.RevisionVeterinariaResponse;
 import com.zoologico.entities.Animal;
 import com.zoologico.entities.RevisionVeterinaria;
 import com.zoologico.repositories.AnimalRepository;
 import com.zoologico.repositories.RevisionVeterinariaRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +43,32 @@ public class RevisionVeterinariaService {
         return revisionRepo.findByAnimalId(animalId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    public ApiResponse update(Long id, RevisionVeterinariaRequest request) {
+        RevisionVeterinaria revision = revisionRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Revisión no encontrada"));
+
+        Animal animal = animalRepo.findById(request.getAnimalId())
+                .orElseThrow(() -> new RuntimeException("Animal no encontrado"));
+
+        revision.setFecha(request.getFecha());
+        revision.setMotivo(request.getMotivo());
+        revision.setDiagnostico(request.getDiagnostico());
+        revision.setRecomendaciones(request.getRecomendaciones());
+        revision.setVeterinario(request.getVeterinario());
+        revision.setAnimal(animal);
+
+        revisionRepo.save(revision);
+
+        return new ApiResponse(200, "Revisión veterinaria editada correctamente");
+    }
+
+    public void delete(Long id) {
+        if (!revisionRepo.existsById(id)) {
+            throw new RuntimeException("Revisión no encontrada");
+        }
+        revisionRepo.deleteById(id);
     }
 
     private RevisionVeterinariaResponse toResponse(RevisionVeterinaria r) {

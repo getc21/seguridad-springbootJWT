@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.zoologico.dtos.AlimentacionRequest;
 import com.zoologico.dtos.AlimentacionResponse;
+import com.zoologico.dtos.ApiResponse;
 import com.zoologico.entities.Animal;
 import com.zoologico.entities.RegistroAlimentacion;
 import com.zoologico.repositories.AnimalRepository;
@@ -46,6 +47,23 @@ public class AlimentacionService {
         return alimentacionRepo.findByAnimalId(animalId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    public ApiResponse update(Long id, AlimentacionRequest request) {
+        RegistroAlimentacion registro = alimentacionRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Registro de alimentación no encontrado"));
+
+        Animal animal = animalRepo.findById(request.getAnimalId())
+                .orElseThrow(() -> new RuntimeException("Animal no encontrado"));
+
+        registro.setAnimal(animal);
+        registro.setTipoAlimento(request.getTipoAlimento());
+        registro.setCantidad(request.getCantidad());
+        registro.setFechaHora(request.getFechaHora());
+        registro.setObservaciones(request.getObservaciones());
+
+        alimentacionRepo.save(registro);
+        return new ApiResponse(200, "Registro de alimentación actualizado correctamente");
     }
 
     public void delete(Long id) {

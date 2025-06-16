@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.zoologico.dtos.ApiResponse;
 import com.zoologico.dtos.DietaRequest;
 import com.zoologico.dtos.DietaResponse;
 import com.zoologico.services.DietaService;
 
 import lombok.RequiredArgsConstructor;
-
 
 @RestController
 @RequestMapping("/api/dietas")
@@ -42,13 +42,15 @@ public class DietaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DietaResponse> update(@PathVariable Long id, @RequestBody DietaRequest request) {
-        return ResponseEntity.ok(dietaService.update(id, request));
+    public ResponseEntity<ApiResponse> update(@PathVariable Long id, @RequestBody DietaRequest request) {
+        ApiResponse response = dietaService.update(id, request);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse> delete(@PathVariable Long id) {
         dietaService.delete(id);
-        return ResponseEntity.noContent().build();
+        ApiResponse response = new ApiResponse(200, "Dieta eliminada correctamente");
+        return ResponseEntity.ok(response);
     }
 }

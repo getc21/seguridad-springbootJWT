@@ -1,9 +1,9 @@
 package com.zoologico.dtos;
 
+import java.time.LocalDate;
+
 import lombok.Builder;
 import lombok.Data;
-
-import java.time.LocalDate;
 
 @Data
 @Builder
@@ -14,4 +14,5 @@ public class VacunaResponse {
     private LocalDate fechaAplicacion;
     private String proveedor;
     private String dosis;
+    private Long animalId;
 }
